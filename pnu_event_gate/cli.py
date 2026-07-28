@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import sys
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -1205,7 +1206,20 @@ def _load_json(value: str) -> Any:
 
 
 def _print_json(payload: Any, *, pretty: bool) -> None:
-    print(json.dumps(payload, ensure_ascii=False, indent=2 if pretty else None))
+    print(
+        json.dumps(
+            payload,
+            ensure_ascii=False,
+            indent=2 if pretty else None,
+            default=_json_default,
+        )
+    )
+
+
+def _json_default(value: Any) -> str:
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
 
 
 if __name__ == "__main__":
